@@ -1,0 +1,73 @@
+version: '2'
+services:
+
+  identity-manager:
+    container_name: identity-manager
+    build:
+      context: ./
+      dockerfile: ./dockerfiles/identity-manager.dockerfile
+    environment:
+      - "IDENTITY_NAME"
+      - "IDENTITY_DIR=/etc/identity/"
+      - "DNS_RESOLVER"
+    volumes:
+      - 'identity:/etc/identity'
+
+  mqtt-monitor:
+    container_name: mqtt-monitor
+    build:
+      context: ./
+      dockerfile: ./dockerfiles/mqtt-manager.dockerfile
+    environment:
+      - "IDENTITY_NAME"
+      - "MQTT_HOST"
+      - "MQTT_PORT"
+      - "DNS_RESOLVER"
+    restart: always
+    command: mosquitto_sub -h ${MQTT_HOST} -p ${MQTT_PORT} -t ${IDENTITY_NAME}
+
+  mqtt-parser:
+    container_name: mqtt-parser
+    build:
+      context: ./
+      dockerfile: ./dockerfiles/mqtt-manager.dockerfile
+    environment:
+      - "IDENTITY_NAME"
+      - "IDENTITY_DIR=/etc/identity/"
+      - "MQTT_HOST"
+      - "MQTT_PORT"
+      - "DNS_RESOLVER"
+    restart: always
+    command: /src/auth_monitor.sh
+    volumes:
+      - 'identity:/etc/identity'
+
+  message-codec:
+    container_name: message-codec
+    build:
+      context: ./
+      dockerfile: ./dockerfiles/message-codec.dockerfile
+    environment:
+      - "IDENTITY_NAME"
+      - "IDENTITY_DIR=/etc/identity/"
+      - "DNS_RESOLVER"
+    volumes:
+      - 'identity:/etc/identity'
+
+  mqtt-sender:
+    container_name: mqtt-sender
+    build:
+      context: ./
+      dockerfile: ./dockerfiles/mqtt-manager.dockerfile
+    environment:
+      - "MQTT_HOST"
+      - "MQTT_PORT"
+      - "DNS_RESOLVER"
+      - "IDENTITY_DIR=/etc/identity"
+      - "IDENTITY_NAME"
+    volumes:
+      - 'identity:/etc/identity'
+
+volumes: 
+  identity:
+  
