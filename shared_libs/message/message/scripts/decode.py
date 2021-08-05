@@ -45,11 +45,12 @@ def main():
         print("Certificate does not exist at {}, attempt to cache from DNS...".format(cert_path))
         subprocess.call([arguments.idgetter, dns_name])
     try:
-        sender, message = Sign.verify(arguments.identitydir, signed)
+        message = Sign.verify(arguments.identitydir, signed)
     except ValueError as err:
         print(err)
+        print("Unable to verify message from {}".format(dns_name))
         sys.exit(1)
-    print("{} sent a message: {}".format(sender, message))
+    print("{} sent a message: {}".format(dns_name, message))
 
 
 def sanitize_dns_name(dns_name):

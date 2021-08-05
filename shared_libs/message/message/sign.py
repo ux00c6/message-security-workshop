@@ -25,4 +25,4 @@ class Sign:
         pyca_pubkey = Util.get_pubkey_from_cert(dns_name, certificate_base_path)
         pubkey.import_from_pyca(pyca_pubkey)
         jws_token.verify(pubkey)
-        return (dns_name, jws_token.payload)
+        return jws_token.payload
